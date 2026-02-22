@@ -88,7 +88,7 @@ The application automatically calculates performance improvement and provides in
 ### 1️⃣ Clone the repository
 
 ```bash
-git clone https://github.com/yourusername/data-detective.git
+git clone https://github.com/Rajcpp/Data-Detective.git
 cd data-detective
 ```
 
