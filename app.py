@@ -548,41 +548,42 @@ with st.sidebar:
                 )
                 st.session_state.analysis_done = False
                 st.session_state.analysis_results = None
+    
+    # Show dataset info and target selection if data is loaded (from either upload or session)
+    if st.session_state.df is not None:
+        df = st.session_state.df
         
-        if st.session_state.df is not None:
-            df = st.session_state.df
+        # Quick stats in sidebar
+        st.markdown("---")
+        st.markdown("### 📊 Dataset Overview")
+        st.metric("Rows", f"{len(df):,}")
+        st.metric("Columns", len(df.columns))
+        st.metric("Memory", f"{df.memory_usage(deep=True).sum() / 1024**2:.2f} MB")
+        
+        # Missing data warning
+        missing_pct = (df.isnull().sum().sum() / (len(df) * len(df.columns))) * 100
+        if missing_pct > 0:
+            st.warning(f"⚠️ {missing_pct:.1f}% missing data")
+        
+        st.markdown("---")
+        st.markdown("### 🎯 Target Selection")
+        
+        target_col = st.selectbox(
+            "Select target variable",
+            options=df.columns.tolist(),
+            help="Choose the column you want to predict"
+        )
+        
+        if target_col:
+            st.session_state.target_column = target_col
+            problem_type = detect_problem_type(df[target_col])
+            st.session_state.problem_type = problem_type
             
-            # Quick stats in sidebar
-            st.markdown("---")
-            st.markdown("### 📊 Dataset Overview")
-            st.metric("Rows", f"{len(df):,}")
-            st.metric("Columns", len(df.columns))
-            st.metric("Memory", f"{df.memory_usage(deep=True).sum() / 1024**2:.2f} MB")
-            
-            # Missing data warning
-            missing_pct = (df.isnull().sum().sum() / (len(df) * len(df.columns))) * 100
-            if missing_pct > 0:
-                st.warning(f"⚠️ {missing_pct:.1f}% missing data")
-            
-            st.markdown("---")
-            st.markdown("### 🎯 Target Selection")
-            
-            target_col = st.selectbox(
-                "Select target variable",
-                options=df.columns.tolist(),
-                help="Choose the column you want to predict"
-            )
-            
-            if target_col:
-                st.session_state.target_column = target_col
-                problem_type = detect_problem_type(df[target_col])
-                st.session_state.problem_type = problem_type
-                
-                # Show problem type
-                if problem_type == 'regression':
-                    st.info("📈 Regression Problem")
-                else:
-                    st.info("🎯 Classification Problem")
+            # Show problem type
+            if problem_type == 'regression':
+                st.info("📈 Regression Problem")
+            else:
+                st.info("🎯 Classification Problem")
     
     st.markdown("---")
     st.markdown("### 🔗 Quick Links")
